@@ -20,7 +20,7 @@ PyInstaller compiled EXE of the provided .py file is available in releases.
 3. Provide your 6 modified driver_model.brres files. One is for Inside Drift Bikes, one is for Outside Drift Bikes, and one is for Karts. The other 3 files are their splitscreen _4 equivalents.
 <img src="tutorial/stp3.png" width="50%"/>
 
-(OPTIONAL) Set a character to rename the output files charids to. It will rename all the new szs files made by the program to the selected characters CharID.
+- (OPTIONAL) Set a character to rename the output files charids to. It will rename all the new szs files made by the program to the selected characters CharID.
 Leave this as disabled if you have no reason to rename your files to a different character.
 <img src="tutorial/opt.png" width="50%"/>
 
