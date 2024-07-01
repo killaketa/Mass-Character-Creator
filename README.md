@@ -22,7 +22,7 @@ PyInstaller compiled EXE of the provided .py file is available in releases.
 
 (OPTIONAL) Set a character to rename the output files charids to. It will rename all the new szs files made by the program to the selected characters CharID.
 Leave this as disabled if you have no reason to rename your files to a different character.
-<img src="tutorial/stp3opt.png" width="50%"/>
+<img src="tutorial/opt.png" width="50%"/>
 
 4. Press the Patch button. The program will extract all of the SZS files, appropriately replace the driver_model.brres files with the ones supplied, then replace the SZS files in the folder with the new ones.
 <img src="tutorial/stp4.png" width="50%"/>
