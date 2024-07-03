@@ -132,7 +132,7 @@ def replace_brres(szsfolder,filenames,weight,brresgroup):
                                 bodytex0name = "mc_bike_all"
                                 tiretex0name = "mc_bike_tire"
                             case "mc_kart":
-                                bodytex0name = "gesso"
+                                bodytex0name = "gesso3"
                                 tiretex0name = "sc_tire"
                             case "md_bike":
                                 bodytex0name = "md_bike_body"
@@ -157,7 +157,7 @@ def replace_brres(szsfolder,filenames,weight,brresgroup):
                                 tiretex0name = "se_kart_tire"
                         
                         os.system(f'wszst extract "{dest_path}/kart_model.brres"')
-                        os.system(f'wimgt encode "{vehicletexturemask[index][0]}" --DEST "{dest_path}/kart_model.brres.d/Textures(NW4R)/{bodytex0name}" -r')
+                        os.system(f'wimgt encode "{vehicletexturemask[index][0]}" --transform TEX.CMPR --DEST "{dest_path}/kart_model.brres.d/Textures(NW4R)/{bodytex0name}" -r')
                         if UseTireTexture == 1:
                             os.system(f'wimgt encode "{vehicletexturemask[index][1]}" --transform TEX.CMPR --DEST "{dest_path}/kart_model.brres.d/Textures(NW4R)/{tiretex0name}" -r')
                         os.system(f'wszst create "{dest_path}/kart_model.brres.d" -r --brres')
@@ -235,6 +235,9 @@ class MainWindow(QMainWindow):
         self.VehicleTexWindow = 0
         self.VehicleBresWindow = 0
 
+        self.ShowVehicleTexWindow()
+        self.ShowVehicleBresWindow()
+
         self.grid = QGridLayout()
         self.LeftBtnLayout = QtWidgets.QGridLayout()
         widget = QtWidgets.QWidget()
@@ -276,37 +279,37 @@ class MainWindow(QMainWindow):
 
         # Buttons
         self.BIBrresBtn = QtWidgets.QPushButton(self)
-        self.BIBrresBtn.setText("Path to Inside Drift driver_model.brres")
+        self.BIBrresBtn.setText("Bike Inside Drift driver_model.brres")
         self.BIBrresBtn.clicked.connect(self.BIFile)
         self.LeftBtnLayout.addWidget(self.BIBrresBtn,0,0,1,3)
         self.DriverGroup.addButton(self.BIBrresBtn)
         
         self.BIMBrresBtn = QtWidgets.QPushButton(self)
-        self.BIMBrresBtn.setText("Path to Multiplayer Inside Drift driver_model.brres")
+        self.BIMBrresBtn.setText("Multiplayer Bike Inside Drift driver_model.brres")
         self.BIMBrresBtn.clicked.connect(self.BIMFile)
         self.LeftBtnLayout.addWidget(self.BIMBrresBtn,1,0,1,3)
         self.DriverGroup.addButton(self.BIMBrresBtn)
         
         self.BOBrresBtn = QtWidgets.QPushButton(self)
-        self.BOBrresBtn.setText("Path to Outside Drift driver_model.brres")
+        self.BOBrresBtn.setText("Bike Outside Drift driver_model.brres")
         self.BOBrresBtn.clicked.connect(self.BOFile)
         self.LeftBtnLayout.addWidget(self.BOBrresBtn,2,0,1,3)
         self.DriverGroup.addButton(self.BOBrresBtn)
         
         self.BOMBrresBtn = QtWidgets.QPushButton(self)
-        self.BOMBrresBtn.setText("Path to Multiplayer Outside Drift driver_model.brres")
+        self.BOMBrresBtn.setText("Multiplayer Bike Outside Drift driver_model.brres")
         self.BOMBrresBtn.clicked.connect(self.BOMFile)
         self.LeftBtnLayout.addWidget(self.BOMBrresBtn,3,0,1,3)
         self.DriverGroup.addButton(self.BOMBrresBtn)
         
         self.KABrresBtn = QtWidgets.QPushButton(self)
-        self.KABrresBtn.setText("Path to Kart driver_model.brres")
+        self.KABrresBtn.setText("Kart driver_model.brres")
         self.KABrresBtn.clicked.connect(self.KAFile)
         self.LeftBtnLayout.addWidget(self.KABrresBtn,4,0,1,3)
         self.DriverGroup.addButton(self.KABrresBtn)
         
         self.KAMBrresBtn = QtWidgets.QPushButton(self)
-        self.KAMBrresBtn.setText("Path to Multiplayer Kart driver_model.brres")
+        self.KAMBrresBtn.setText("Multiplayer Kart driver_model.brres")
         self.KAMBrresBtn.clicked.connect(self.KAMFile)
         self.LeftBtnLayout.addWidget(self.KAMBrresBtn,5,0,1,3)
         self.DriverGroup.addButton(self.KAMBrresBtn)
@@ -562,7 +565,6 @@ class MainWindow(QMainWindow):
     def ShowVehicleTexWindow(self):
         if self.VehicleTexWindow == 0:
             self.VehicleTexWindow = VehicleWindow("texture")
-            self.VehicleTexWindow.show()
             return
         self.VehicleTexWindow.show()
             
@@ -570,7 +572,6 @@ class MainWindow(QMainWindow):
     def ShowVehicleBresWindow(self):
         if self.VehicleBresWindow == 0:
             self.VehicleBresWindow = VehicleWindow("brres")
-            self.VehicleBresWindow.show()
             return
         self.VehicleBresWindow.show()
 
@@ -678,11 +679,13 @@ class MainWindow(QMainWindow):
                 self.MaskBresBtn.hide()
                 self.MaskTexBtn.show()
                 VehicleReplacementMode = 0
+                self.VehicleBresWindow.hide()
             case self.MaskBresCB:
                 self.MaskTexCB.setChecked(False)
                 self.MaskTexBtn.hide()
                 self.MaskBresBtn.show()
                 VehicleReplacementMode = 1
+                self.VehicleTexWindow.hide()
 
 
     def closeEvent(self,event):
@@ -714,18 +717,17 @@ class VehicleWindow(QtWidgets.QWidget):
 
         match self.wintype:
             case "texture":
-                self.togglealt = QtWidgets.QCheckBox("Replace Tire PNG?",self)
+                self.togglealt = QtWidgets.QCheckBox("Use Tire PNG?",self)
                 grid.addWidget(self.togglealt,8,5)
                 self.togglealt.toggled.connect(self.AltCheckboxToggled)
             case "brres":
-                self.togglealt = QtWidgets.QCheckBox("Replace Multiplayer BRRES?",self)
+                self.togglealt = QtWidgets.QCheckBox("Use Multiplayer BRRES?",self)
                 grid.addWidget(self.togglealt,8,5)
                 self.togglealt.toggled.connect(self.AltCheckboxToggled)
         
         
         kartcount = 0
         for i,vehicle in enumerate(vehicles):
-            print(i,vehicle)
             checkbox = QtWidgets.QCheckBox(vehicle,self)
             btn1 = QtWidgets.QPushButton("Path to Body PNG",self)
             sizepolicy = btn1.sizePolicy()
@@ -790,8 +792,6 @@ class VehicleWindow(QtWidgets.QWidget):
             btn1.hide()
             btn2.hide()
 
-        print(vehicle,checkbox.isChecked())
-
     def TexButtonClicked(self, vehicle, altfile):
         match self.wintype:
             case "brres":
@@ -815,11 +815,6 @@ class VehicleWindow(QtWidgets.QWidget):
             if not vehiclemask[index]:
                 vehiclemask[index] = [0,0]
                 return
-            print(vehiclemask)
-            debug = []
-            for checkstate in VehicleCheckboxes:
-                debug.append(checkstate.checkState())
-            print(debug)
         
     def AltCheckboxToggled(self):
         global UseTireTexture
@@ -839,7 +834,6 @@ class VehicleWindow(QtWidgets.QWidget):
                     UseTireTexture = 1
 
             for i,button in enumerate(ButtonGroup.buttons()):
-                print(i,VehicleCheckboxes[i].isChecked())
                 if VehicleCheckboxes[i].isChecked():
                     button.show()
         else:
@@ -850,14 +844,9 @@ class VehicleWindow(QtWidgets.QWidget):
                     UseTireTexture = 0
 
             for i,button in enumerate(ButtonGroup.buttons()):
-                print(i,VehicleCheckboxes[i].isChecked())
                 if VehicleCheckboxes[i].isChecked():
                     button.hide()
-        
 
-
-
-        
 
 
 def window():
