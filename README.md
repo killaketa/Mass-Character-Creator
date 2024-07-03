@@ -7,7 +7,7 @@ Takes into account oddities such as large characters using Inside Drift animatio
 - [PyQt5](https://pypi.org/project/PyQt5) ```pip install pyqt5```
 - [Wiimms SZS Tools](https://szs.wiimm.de/download.html)
 
-PyInstaller compiled EXE of the provided .py file is available in releases.
+PyInstaller compiled EXE of the provided .py file and its modules is available in releases for convenience. Please note you still are required to have Wiimms SZS Tools installed.
 
 ## How to use
 
