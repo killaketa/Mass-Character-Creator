@@ -49,6 +49,7 @@ ToolMode = 1
 VehicleReplacementMode = 0
 UseTireTexture = 0
 UseMultiKartBrres = 0
+AllKartSZS = 0
 
 
 def find_files(szsfolder,charid,weight):
@@ -66,6 +67,10 @@ def decompress_szs(szsfolder,filenames):
         os.system(f'wszst extract "{szsfolder}/{filename}" --DEST "{szsfolder}/.temp/{filename}"')
 
 def replace_brres(szsfolder,filenames,weight,brresgroup):
+    if AllKartSZS != 0:
+        os.system(f'wszst extract "{AllKartSZS}" --DEST "{szsfolder}/.temp/{os.path.basename(AllKartSZS)}"')
+        TempAllKartSZS = szsfolder+"/.temp/"+os.path.basename(AllKartSZS)
+
     for filename in filenames:
         dest_path = szsfolder + "/.temp/" + filename
         if not os.path.exists(dest_path):
@@ -155,11 +160,19 @@ def replace_brres(szsfolder,filenames,weight,brresgroup):
                             case "se_kart":
                                 bodytex0name = "se_kart_all"
                                 tiretex0name = "se_kart_tire"
-                        
+
                         os.system(f'wszst extract "{dest_path}/kart_model.brres"')
-                        os.system(f'wimgt encode "{vehicletexturemask[index][0]}" --transform TEX.CMPR --DEST "{dest_path}/kart_model.brres.d/Textures(NW4R)/{bodytex0name}" -r')
+                        os.system(f'wimgt encode "{vehicletexturemask[index][0]}" --transform TEX.CMPR --DEST "{dest_path}/kart_model.brres.d/Textures(NW4R)/{bodytex0name}" --n-mm=0 -r')
                         if UseTireTexture == 1:
-                            os.system(f'wimgt encode "{vehicletexturemask[index][1]}" --transform TEX.CMPR --DEST "{dest_path}/kart_model.brres.d/Textures(NW4R)/{tiretex0name}" -r')
+                            os.system(f'wimgt encode "{vehicletexturemask[index][1]}" --transform TEX.CMPR --DEST "{dest_path}/kart_model.brres.d/Textures(NW4R)/{tiretex0name}" --n-mm=0 -r')
+                        if AllKartSZS != 0 and not (re.search("_red",vehicle) or re.search("_blue",vehicle)):
+                            os.system(f'wszst extract "{TempAllKartSZS}/{weight}{vehicle}.brres" --DEST "{TempAllKartSZS}/{weight}{vehicle}.d"')
+                            os.system(f'wimgt encode "{vehicletexturemask[index][0]}" --transform TEX.CMPR --DEST "{TempAllKartSZS}/{weight}{vehicle}.d/Textures(NW4R)/{bodytex0name}" --n-mm=0 -r')
+                            if UseTireTexture == 1:
+                                os.system(f'wimgt encode "{vehicletexturemask[index][1]}" --transform TEX.CMPR --DEST "{TempAllKartSZS}/{weight}{vehicle}.d/Textures(NW4R)/{tiretex0name}" --n-mm=0 -r')
+                            os.system(f'wszst create "{TempAllKartSZS}/{weight}{vehicle}.d" --DEST "{TempAllKartSZS}/{weight}{vehicle}.brres" -r')
+                            shutil.rmtree(TempAllKartSZS+"/"+weight+vehicle+".d")
+
                         os.system(f'wszst create "{dest_path}/kart_model.brres.d" -r --brres')
                         shutil.rmtree(szsfolder+"/.temp/"+filename+"/kart_model.brres.d/")
 
@@ -190,6 +203,9 @@ def compress_szs(szsfolder,filenames,charid,rename):
         if rename != 0:
             newfilename = filename.replace(charid,renameid)
         os.system(f'wszst create "{szsfolder}/.temp/{filename}" --DEST "{szsfolder}/{newfilename}" -r')
+
+    if (ToolMode == 2 or ToolMode == 0) and AllKartSZS != 0:
+        os.system(f'wszst create "{szsfolder}/.temp/{os.path.basename(AllKartSZS)}" --DEST "{AllKartSZS}" -r')
     shutil.rmtree(szsfolder+"/.temp/")
 
 def main_logic(szsfolder,charname,rename,brresgroup):
@@ -260,7 +276,7 @@ class MainWindow(QMainWindow):
         self.TextLabel = QtWidgets.QLabel(self)
         self.TextLabel.setText("Press the Patch button once finished importing files and selecting character.")
         self.TextLabel.setMaximumHeight(40)
-        self.grid.addWidget(self.TextLabel,0,3,1,7)
+        self.grid.addWidget(self.TextLabel,0,3,1,8)
 
         # Scroll List
         self.CharacterList = QtWidgets.QListWidget(self)
@@ -268,7 +284,7 @@ class MainWindow(QMainWindow):
         self.CharacterList.addItems(characters)
         self.CharacterList.currentRowChanged.connect(self.CharacterListSelected)
         self.CharacterList.setMinimumWidth(450)
-        self.grid.addWidget(self.CharacterList,1,3,6,7)
+        self.grid.addWidget(self.CharacterList,1,3,6,8)
 
         # Rename Files Dropdown
         self.RenameDDown = QtWidgets.QComboBox(self)
@@ -314,17 +330,22 @@ class MainWindow(QMainWindow):
         self.LeftBtnLayout.addWidget(self.KAMBrresBtn,5,0,1,3)
         self.DriverGroup.addButton(self.KAMBrresBtn)
 
+        # self.OutputPathBtn = QtWidgets.QPushButton(self)
+        # self.OutputPathBtn.setText("Path to Driver.szs")
+        # self.OutputPathBtn.clicked.connect(self.GetDriverSzs)
+        # self.grid.addWidget(self.OutputPathBtn,7,3,1,8)
+
         self.OutputPathBtn = QtWidgets.QPushButton(self)
         self.OutputPathBtn.setText("Path to Folder With The 32 (or Less) SZS Archives")
         self.OutputPathBtn.clicked.connect(self.GetOutputPath)
-        self.grid.addWidget(self.OutputPathBtn,7,3,1,7)
+        self.grid.addWidget(self.OutputPathBtn,7,3,1,8)
 
         self.PatchBtn = QtWidgets.QPushButton(self)
         self.PatchBtn.setText("Press to Patch")
         self.PatchBtn.clicked.connect(self.PatchCheck)
         self.PatchBtn.setMinimumHeight(60)
         self.PatchBtn.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,QtWidgets.QSizePolicy.Policy.Expanding)
-        self.grid.addWidget(self.PatchBtn,8,3,2,7)
+        self.grid.addWidget(self.PatchBtn,8,3,2,8)
 
         # Setup Vehicle Masking Buttons
         self.MaskTexBtn = QtWidgets.QPushButton("Vehicle Texture Masking",self)
@@ -462,6 +483,15 @@ class MainWindow(QMainWindow):
             return
         self.TextLabel.setText("SZS Archives at: \n"+self.OutputPath)
         print("SZS Archives at: "+self.OutputPath)
+        
+    # Handle Driver.szs File Dialog
+    def GetDriverSzs(self):
+        self.DriverSZS,_ = QtWidgets.QFileDialog.getOpenFileName(self,'Open SZS File','','Driver.szs File (Driver.szs)')
+        if not self.DriverSZS:
+            self.DriverSZS = 0
+            return
+        self.TextLabel.setText("Driver.szs at: \n"+self.DriverSZS)
+        print("Driver.szs at: "+self.DriverSZS)
         
     # Handle driver_model.brres File Dialogs
     def BIFile(self):
@@ -715,15 +745,16 @@ class VehicleWindow(QtWidgets.QWidget):
         self.MultiBRRESButtons = QtWidgets.QButtonGroup()
         self.setLayout(grid)
 
+        sizepolicy = QtWidgets.QSizePolicy()
+
         match self.wintype:
             case "texture":
                 self.togglealt = QtWidgets.QCheckBox("Use Tire PNG?",self)
-                grid.addWidget(self.togglealt,8,5)
-                self.togglealt.toggled.connect(self.AltCheckboxToggled)
             case "brres":
                 self.togglealt = QtWidgets.QCheckBox("Use Multiplayer BRRES?",self)
-                grid.addWidget(self.togglealt,8,5)
-                self.togglealt.toggled.connect(self.AltCheckboxToggled)
+        
+        grid.addWidget(self.togglealt,8,5)
+        self.togglealt.toggled.connect(self.AltCheckboxToggled)
         
         
         kartcount = 0
@@ -768,6 +799,20 @@ class VehicleWindow(QtWidgets.QWidget):
             btn1.hide()
             btn2.hide()
 
+        if self.wintype == "texture":
+            self.AllKartBtn = QtWidgets.QPushButton("xx-allkart.szs")
+            self.AllKartBtn.setSizePolicy(sizepolicy)
+            self.AllKartBtn.clicked.connect(self.GetAllKartSzs)
+            grid.addWidget(self.AllKartBtn,8,4)
+        
+    # Handle xx-allkart.szs File Dialog
+    def GetAllKartSzs(self):
+        global AllKartSZS
+        AllKartSZS,_ = QtWidgets.QFileDialog.getOpenFileName(self,'Open SZS File','','xx-allkart.szs File (*-allkart.szs)')
+        if not AllKartSZS:
+            AllKartSZS = 0
+            return
+        print("xx-allkart.szs at: "+AllKartSZS)
 
     def VehCheckboxToggled(self,checkbox,vehicle,btn1,btn2):
         match self.wintype:
@@ -806,7 +851,6 @@ class VehicleWindow(QtWidgets.QWidget):
         index = vehicles.index(vehicle)
     
         if VehicleCheckboxes[index].checkState():
-
             if altfile:
                 vehiclemask[index][1],_ = QtWidgets.QFileDialog.getOpenFileName(self,*filetype)
             else:
@@ -815,6 +859,11 @@ class VehicleWindow(QtWidgets.QWidget):
             if not vehiclemask[index]:
                 vehiclemask[index] = [0,0]
                 return
+            
+            if altfile:
+                print(vehicle+" Alt File: ",os.path.basename(vehiclemask[index][1]))
+            else:
+                print(vehicle+" File: ",os.path.basename(vehiclemask[index][0]))
         
     def AltCheckboxToggled(self):
         global UseTireTexture
