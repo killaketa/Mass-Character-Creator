@@ -1,4 +1,4 @@
-import sys, os, re, shutil
+import sys, os, re, shutil, webbrowser
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGridLayout, QSizePolicy
 
@@ -898,6 +898,8 @@ class VehicleWindow(QtWidgets.QWidget):
 
 
 
+
+
 def window():
     app = QApplication(sys.argv)
     win = MainWindow()
@@ -905,4 +907,24 @@ def window():
     win.show()
     sys.exit(app.exec_())
 
-window()
+if shutil.which("wimgt") and shutil.which("wszst"):
+    window()
+else:
+    app = QApplication(sys.argv)
+    widget = QtWidgets.QWidget()
+    warnbox = QtWidgets.QMessageBox(widget)
+    warnbox.setWindowTitle("Missing Prerequisites!")
+    warnbox.setText("Wiimm's SZS Tools are not installed! Download them at https://szs.wiimm.de/download.html")
+
+    cancel = warnbox.addButton("Close",QtWidgets.QMessageBox.ButtonRole.RejectRole)
+    download = warnbox.addButton("Download",QtWidgets.QMessageBox.ButtonRole.AcceptRole)
+
+    warnbox.exec_()
+
+    if warnbox.clickedButton() is cancel:
+        sys.exit()
+    elif warnbox.clickedButton() is download:
+        webbrowser.open("https://szs.wiimm.de/download.html")
+        sys.exit()
+
+    sys.exit(app.exec_())
