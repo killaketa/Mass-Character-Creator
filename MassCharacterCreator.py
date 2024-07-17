@@ -10,19 +10,19 @@ vehicles = ["a_bike",       "a_kart",       "b_bike",      "b_kart",      "c_bik
             "e_kart"]
 
 svehicleanims = ["bi","ka","bi","ka","bi",
-                 "ka","bi","ka","bi","bi", #All small characters dont have special outside drift
-                 "bi","ka","ka","ka","bi", #anims for some reason. Can just use inside drift anims.
+                 "ka","bi","ka","bi","ka", #All small characters dont have special outside drift
+                 "bi","ka","bi","ka","bi", #anims for some reason. Can just use inside drift anims.
                  "ka"]
 
 mvehicleanims = ["bi","ka","bo","ka","bo",
-                 "ka","bi","ka","bo","bo",
-                 "bo","ka","ka","ka","bi",
+                 "ka","bi","ka","bo","ka",
+                 "bo","ka","bo","ka","bi",
                  "ka"]
 
 lvehicleanims = ["bi","ka","bo","ka","bo",
-                 "ka","bi","ka","bi","bi", #For some reason Standard Bike uses inside drift anims
-                 "bi","ka","ka","ka","bi", #on large characters.
-                 "ka"]
+                 "ka","bi","ka","bi","ka", #Standard Bike uses inside drift anims
+                 "bi","ka","bi","ka","bi", #on large characters due to the outside drift anims
+                 "ka"]                     #being out of place.
 
 vehiclebrresmask = [[0,0] for _ in range(16)]
 
@@ -107,9 +107,18 @@ def replace_brres(szsfolder,filenames,weight,brresgroup):
                         case "kam":
                             newbrres = brresgroup.KAMBrres
 
-                    os.remove(dest_path+"/"+"driver_model.brres")
+                    # if vehicle != "df_kart":
+                    os.remove(dest_path+"/driver_model.brres")
                     newbrres = shutil.copy2(newbrres,dest_path+"/")
-                    os.rename(newbrres,dest_path+"/"+"driver_model.brres")
+                    os.rename(newbrres,dest_path+"/driver_model.brres")
+                    # else:
+                    #     os.system(f'wszst extract "{dest_path}/driver_model.brres" --DEST "{szsfolder}/.temp/DFKart"')
+                    #     os.system(f'wszst extract "{newbrres}" --DEST "{szsfolder}/.temp/KartBrres"')
+                    #     # for file in os.listdir(szsfolder+"/.temp/KartBrres/AnmChr(NW4R)"):
+                    #     #     os.remove(szsfolder+"/.temp/KartBrres/AnmChr(NW4R)/"+file)
+                    #     shutil.rmtree(szsfolder+"/.temp/KartBrres/AnmChr(NW4R)/")
+                    #     shutil.copytree(szsfolder+"/.temp/DFKart/AnmChr(NW4R)",szsfolder+"/.temp/KartBrres/AnmChr(NW4R)")
+                    #     os.system(f'wszst create "{szsfolder}/.temp/KartBrres" --DEST "{dest_path}/driver_model.brres" -r')
 
                 if ToolMode == 2 or ToolMode == 0:
                     if VehicleReplacementMode == 0:
