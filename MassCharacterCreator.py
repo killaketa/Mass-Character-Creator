@@ -21,7 +21,7 @@ mvehicleanims = ["bi","ka","bo","ka","bo",
 
 lvehicleanims = ["bi","ka","bo","ka","bo",
                  "ka","bi","ka","bi","ka", #Standard Bike uses inside drift anims
-                 "bi","ka","bi","ka","bi", #on large characters due to the outside drift anims
+                 "bi","ka","bi","ka","bo", #on large characters due to the outside drift anims
                  "ka"]                     #being out of place.
 
 vehiclebrresmask = [[0,0] for _ in range(16)]
